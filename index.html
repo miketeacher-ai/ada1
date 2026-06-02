@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Present Simple Daily Routine Quest</title>
+<style>
+:root{
+  --bg:#f7fbff; --card:#ffffff; --ink:#1f2937; --muted:#64748b;
+  --blue:#38bdf8; --green:#22c55e; --yellow:#facc15; --pink:#fb7185;
+  --purple:#a78bfa; --orange:#fb923c; --red:#ef4444; --shadow:0 14px 32px rgba(15,23,42,.14);
+}
+.dark{
+  --bg:#101827; --card:#172136; --ink:#f8fafc; --muted:#cbd5e1;
+  --shadow:0 14px 32px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:"Comic Sans MS","Trebuchet MS",system-ui,sans-serif;background:radial-gradient(circle at top left,#e0f2fe,var(--bg) 38%,#fff7ed);color:var(--ink);overflow-x:hidden}
+.dark body, body.dark{background:radial-gradient(circle at top left,#23395d,var(--bg) 38%,#111827)}
+#loader{position:fixed;inset:0;z-index:999;background:linear-gradient(135deg,#60a5fa,#f472b6,#facc15);display:grid;place-items:center;color:white;text-align:center}
+.loader-card{background:rgba(255,255,255,.2);padding:30px;border-radius:30px;backdrop-filter:blur(8px);box-shadow:var(--shadow);animation:bounce 1.3s infinite}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+.app{max-width:1240px;margin:auto;padding:16px}
+.hero{min-height:86vh;display:grid;place-items:center;text-align:center;position:relative}
+.hero h1{font-size:clamp(2.2rem,7vw,5.5rem);line-height:.95;margin:8px;background:linear-gradient(90deg,#2563eb,#db2777,#f59e0b);-webkit-background-clip:text;color:transparent}
+.hero p{font-size:clamp(1.05rem,2vw,1.35rem);color:var(--muted);max-width:860px;margin:auto}
+.mascot{font-size:5rem;animation:float 3s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-15px) rotate(3deg)}}
+.toolbar{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.82);backdrop-filter:blur(10px);border:2px solid rgba(255,255,255,.5);box-shadow:var(--shadow);border-radius:0 0 24px 24px;padding:10px;display:flex;gap:8px;align-items:center;overflow-x:auto}
+.dark .toolbar{background:rgba(20,30,50,.86)}
+button,.btn{border:0;border-radius:999px;padding:11px 16px;font-weight:900;cursor:pointer;background:linear-gradient(135deg,var(--blue),#818cf8);color:white;box-shadow:0 7px 0 rgba(37,99,235,.25);transition:.2s;white-space:nowrap}
+button:hover,.btn:hover{transform:translateY(-3px) scale(1.03)}
+button:active{transform:translateY(2px);box-shadow:none}
+.small{font-size:.85rem;padding:8px 12px}
+.section{background:rgba(255,255,255,.72);border:3px solid rgba(255,255,255,.9);border-radius:34px;padding:22px;margin:24px 0;box-shadow:var(--shadow)}
+.dark .section{background:rgba(23,33,54,.82);border-color:rgba(255,255,255,.08)}
+h2{font-size:clamp(1.7rem,3vw,2.6rem);margin:4px 0 12px}
+h3{font-size:1.35rem}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px}
+.card{background:var(--card);border-radius:24px;padding:16px;box-shadow:var(--shadow);border:2px solid rgba(148,163,184,.18);transition:.25s;position:relative;overflow:hidden}
+.card:hover{transform:translateY(-5px)}
+.flash{min-height:170px;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;animation:pop .45s ease both}
+.flash .pic{font-size:4rem}
+.flash .label{font-size:1.05rem;font-weight:900;margin-top:8px}
+@keyframes pop{from{opacity:0;transform:scale(.75)}to{opacity:1;transform:scale(1)}}
+.progress-wrap{height:18px;background:#dbeafe;border-radius:999px;overflow:hidden;min-width:180px}
+.progress-bar{height:100%;background:linear-gradient(90deg,#22c55e,#facc15,#fb7185);width:0%;transition:.5s}
+.stats{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:12px 0}
+.pill{background:var(--card);border-radius:999px;padding:9px 13px;font-weight:900;box-shadow:var(--shadow)}
+.pattern{display:inline-block;padding:4px 8px;border-radius:10px;background:#fef3c7;color:#92400e;font-weight:900}
+.subject{background:#dbeafe;color:#1d4ed8}.verb{background:#dcfce7;color:#166534}.negative{background:#fee2e2;color:#991b1b}.question{background:#ede9fe;color:#6d28d9}.freq{background:#fff7ed;color:#c2410c}
+.note{border-left:8px solid var(--yellow);background:#fffbeb;padding:14px;border-radius:18px;margin:12px 0;color:#78350f}
+.dark .note{background:#3b2f13;color:#fde68a}
+.drag{cursor:grab;user-select:none;background:linear-gradient(135deg,#fff,#e0f2fe);border:2px dashed #60a5fa;text-align:center;font-size:.95rem}
+.dark .drag{background:linear-gradient(135deg,#24324d,#172136)}
+.drop{min-height:118px;border:3px dashed #cbd5e1;border-radius:22px;display:grid;place-items:center;text-align:center;padding:10px;background:rgba(255,255,255,.55)}
+.drop.correct{border-color:#22c55e;background:#dcfce7;color:#14532d}
+.drop.wrong{border-color:#ef4444;background:#fee2e2;color:#7f1d1d}
+.game-board{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+.big-emoji{font-size:3.3rem}
+.feedback{font-size:1.25rem;font-weight:900;min-height:32px;margin:10px 0}
+.choice{background:var(--card);color:var(--ink);border:3px solid #bfdbfe;box-shadow:var(--shadow);padding:16px;border-radius:22px}
+.choice.selected{border-color:#22c55e;background:#dcfce7;color:#14532d}
+.inputline{width:100%;padding:13px;border-radius:16px;border:2px solid #cbd5e1;font-size:1rem;background:var(--card);color:var(--ink)}
+.question-card{display:none}.question-card.active{display:block}
+.level-panel{display:none}.level-panel.active{display:block}
+.cert{display:none;background:linear-gradient(135deg,#fff7ed,#fef9c3,#e0f2fe);border:8px double #f59e0b;border-radius:28px;text-align:center;padding:30px;margin:20px 0;color:#1f2937}
+.wheel{width:240px;height:240px;border-radius:50%;margin:20px auto;background:conic-gradient(#60a5fa 0 60deg,#f472b6 60deg 120deg,#facc15 120deg 180deg,#34d399 180deg 240deg,#a78bfa 240deg 300deg,#fb923c 300deg);display:grid;place-items:center;font-size:3rem;border:10px solid white;box-shadow:var(--shadow);transition:transform 2s cubic-bezier(.12,.72,.18,1)}
+.memory-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(95px,1fr));gap:10px}
+.memory-card{height:92px;background:linear-gradient(135deg,#818cf8,#ec4899);border-radius:18px;display:grid;place-items:center;font-size:2rem;color:white;font-weight:900;cursor:pointer}
+.memory-card.open,.memory-card.done{background:var(--card);color:var(--ink)}
+.team{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.hidden{display:none}
+textarea{width:100%;min-height:120px;border-radius:18px;border:2px solid #cbd5e1;padding:14px;background:var(--card);color:var(--ink)}
+.footer{text-align:center;color:var(--muted);padding:30px}
+.confetti{position:fixed;width:10px;height:10px;top:-20px;z-index:998;animation:fall 2.6s linear forwards}
+@keyframes fall{to{transform:translateY(110vh) rotate(720deg);opacity:0}}
+.badge{display:inline-flex;align-items:center;gap:5px;background:linear-gradient(135deg,#fde68a,#fca5a5);border-radius:999px;padding:8px 12px;margin:4px;font-weight:900;color:#7c2d12}
+@media(max-width:720px){.toolbar{border-radius:0;padding:8px}.section{padding:16px;border-radius:24px}.team{grid-template-columns:1fr}.flash .pic{font-size:3.2rem}}
+@media print{.toolbar,.hero button,.no-print{display:none!important}.section{break-inside:avoid;box-shadow:none;border:1px solid #ddd}body{background:white;color:#111}}
+
+/* ---------- Expansion Sections 10–25 ---------- */
+.reading-layout{display:grid;grid-template-columns:180px 1fr;gap:16px;align-items:start}
+.illustration{font-size:6rem;text-align:center;background:linear-gradient(135deg,#dbeafe,#fef3c7,#fce7f3);border-radius:28px;padding:22px;box-shadow:var(--shadow)}
+.vocab-chip{display:inline-block;background:#e0f2fe;color:#075985;border-radius:999px;padding:3px 8px;font-weight:900;cursor:pointer;margin:2px}
+.task-row{background:var(--card);padding:12px;border-radius:18px;margin:10px 0;box-shadow:var(--shadow)}
+.correctText{background:#dcfce7!important;color:#14532d!important}
+.wrongText{background:#fee2e2!important;color:#7f1d1d!important}
+.seq-item{background:#fff7ed;border:2px solid #fb923c;border-radius:16px;padding:10px;margin:6px;cursor:grab}
+.xp-toast{position:fixed;right:18px;bottom:18px;background:linear-gradient(135deg,#22c55e,#38bdf8);color:white;padding:18px 22px;border-radius:22px;box-shadow:var(--shadow);z-index:1000;display:none;font-weight:900}
+.avatar-preview{font-size:7rem;text-align:center;background:linear-gradient(135deg,#fef3c7,#dbeafe);border-radius:28px;padding:18px}
+.filter-btn.active{background:linear-gradient(135deg,#22c55e,#84cc16)}
+.video-box{background:linear-gradient(135deg,#111827,#1e3a8a);color:white;border-radius:30px;padding:24px;text-align:center;min-height:280px;display:grid;place-items:center}
+.teacher-face{font-size:6rem;animation:float 2.5s infinite}
+.chat-window{height:330px;overflow:auto;background:var(--card);border-radius:24px;padding:16px;box-shadow:var(--shadow)}
+.msg{padding:10px 14px;border-radius:18px;margin:8px 0;max-width:82%}
+.bot{background:#dbeafe;color:#1e3a8a}
+.user{background:#dcfce7;color:#14532d;margin-left:auto}
+.print-card{border:2px dashed #94a3b8;border-radius:18px;padding:14px;margin:10px 0;background:white;color:#111}
+.hidden-object-area{min-height:260px;border-radius:28px;background:linear-gradient(135deg,#bbf7d0,#dbeafe,#fef3c7);position:relative;overflow:hidden}
+.hidden-obj{position:absolute;font-size:2.2rem;cursor:pointer;filter:drop-shadow(0 5px 4px rgba(0,0,0,.2))}
+.dictation-diff span.ok{background:#dcfce7}.dictation-diff span.bad{background:#fee2e2;text-decoration:underline}
+.badge-locked{filter:grayscale(1);opacity:.5}
+@media(max-width:720px){.reading-layout{grid-template-columns:1fr}.illustration{font-size:4rem}}
+@media print{.no-print,.toolbar,#loader,.hero{display:none!important}.print-card{break-inside:avoid}.section{display:block!important}}
+
+</style>
+</head>
+<body>
+<div id="loader"><div class="loader-card"><div style="font-size:4rem">🚀</div><h1>Loading Daily Routine Quest...</h1><p>Get ready to learn English!</p></div></div>
+
+<div class="toolbar no-print">
+  <button onclick="scrollToId('warmup')">🌈 Warm-up</button>
+  <button onclick="scrollToId('grammar')">📘 Grammar</button>
+  <button onclick="scrollToId('match')">🧩 Match</button>
+  <button onclick="scrollToId('vocab')">🎮 Vocab</button>
+  <button onclick="scrollToId('listen')">🎧 Listen</button>
+  <button onclick="scrollToId('speak')">🗣️ Speak</button>
+  <button onclick="scrollToId('practice')">✍️ Practice</button>
+  <button onclick="scrollToId('mini')">🕹️ Games</button>
+
+  <button onclick="scrollToId('reading')">📖 Read</button>
+  <button onclick="scrollToId('writingLab')">✏️ Write</button>
+  <button onclick="scrollToId('memoryPlus')">🧠 Memory+</button>
+  <button onclick="scrollToId('dictation')">🔊 Dictation</button>
+  <button onclick="scrollToId('storyBuilder')">🧩 Story</button>
+  <button onclick="scrollToId('avatarRoutine')">🎨 Avatar</button>
+  <button onclick="scrollToId('assessment')">🧪 Test</button>
+  <button onclick="scrollToId('vocabBank')">📚 Vocab</button>
+  <button onclick="scrollToId('chatMode')">🤖 Chat</button>
+  <button onclick="scrollToId('printables')">🖨️ Print</button>
+  <button onclick="toggleTeacher()">👩‍🏫 Teacher</button>
+  <button onclick="toggleMusic()">🎵 Music</button>
+  <button onclick="toggleDark()">🌙 Mode</button>
+  <button onclick="goFull()">⛶ Full</button>
+  <span class="pill">⭐ <span id="stars">0</span></span>
+  <span class="pill">🪙 <span id="coins">0</span></span>
+  <div class="progress-wrap"><div id="mainProgress" class="progress-bar"></div></div>
+</div>
+
+<main class="app">
+<section class="hero">
+  <div>
+    <div class="mascot">🦊</div>
+    <h1>Daily Routine Quest</h1>
+    <p>Learn Present Simple with games, listening, speaking, flashcards, and classroom challenges. A1 English for 9-year-old learners.</p>
+    <div class="stats">
+      <span class="pill">Target: Age 9</span><span class="pill">Level: A1</span><span class="pill">Topic: Present Simple</span>
+    </div>
+    <button onclick="scrollToId('warmup')">Start Lesson 🚀</button>
+  </div>
+</section>
+
+<section id="warmup" class="section">
+<h2>🧊 1. Warm-up Visual Gallery</h2>
+<p>Click a card. Listen. Repeat after me.</p>
+<div class="stats">
+  <button onclick="repeatMode=!repeatMode; this.textContent=repeatMode?'✅ Repeat mode ON':'🔁 Repeat after me mode'">🔁 Repeat after me mode</button>
+  <button onclick="startSlideshow()">▶ Autoplay slideshow</button>
+  <button onclick="stopSlideshow()">⏹ Stop</button>
+</div>
+<div id="warmGrid" class="grid"></div>
+</section>
+
+<section id="grammar" class="section">
+<h2>📘 2. Grammar Notes: Present Simple</h2>
+<div class="card">
+<h3>Super simple rule</h3>
+<p><span class="pattern subject">I / You / We / They</span> + <span class="pattern verb">verb</span>: I wake up. You play games.</p>
+<p><span class="pattern subject">He / She / It</span> + <span class="pattern verb">verb + s</span>: She wakes up. He plays games.</p>
+<div class="note">Turkish note: “Her gün yaptığımız şeyler” için Present Simple kullanırız. Örnek: I brush my teeth. = Dişlerimi fırçalarım.</div>
+</div>
+<div class="grid">
+  <div class="card"><h3>✅ Positive</h3><p><span class="subject pattern">I</span> <span class="verb pattern">eat</span> breakfast.</p><p><span class="subject pattern">She</span> <span class="verb pattern">eats</span> breakfast.</p></div>
+  <div class="card"><h3>❌ Negative</h3><p>I <span class="negative pattern">don’t</span> play at night.</p><p>He <span class="negative pattern">doesn’t</span> play at night.</p></div>
+  <div class="card"><h3>❓ Questions</h3><p><span class="question pattern">Do</span> you wake up early?</p><p><span class="question pattern">Does</span> she go to school?</p></div>
+  <div class="card"><h3>💬 Short answers</h3><p>Yes, I do. / No, I don’t.</p><p>Yes, she does. / No, she doesn’t.</p></div>
+</div>
+<h3>Frequency words</h3>
+<p><span class="freq pattern">always</span> 100% · <span class="freq pattern">usually</span> often · <span class="freq pattern">sometimes</span> not always · <span class="freq pattern">never</span> 0%</p>
+<div id="examples" class="grid"></div>
+<div class="grid">
+  <div class="card"><h3>⚠️ Common mistakes</h3><p>❌ She wake up. ✅ She wakes up.</p><p>❌ He don’t eat. ✅ He doesn’t eat.</p><p>❌ Does you play? ✅ Do you play?</p></div>
+  <div class="card"><h3>👩‍🏫 Teacher tips</h3><p>Use hand signs: one finger for subject, one for verb, add “s” with a snake sound: sssss. Make students clap the sentence rhythm.</p></div>
+</div>
+</section>
+
+<section id="match" class="section">
+<h2>🧩 3. Matching Game: Words to Images</h2>
+<div class="stats">
+  <span class="pill">Score: <span id="matchScore">0</span>/25</span>
+  <span class="pill">Timer: <span id="matchTimer">0</span>s</span>
+  <button onclick="initMatching()">🔄 Retry / Randomize</button>
+</div>
+<div class="grid" id="dragWords"></div>
+<h3>Drop words onto the correct pictures</h3>
+<div class="game-board" id="dropImages"></div>
+</section>
+
+<section id="vocab" class="section">
+<h2>🎮 4. Gamified Vocabulary Challenge</h2>
+<div class="card">
+  <div class="mascot" style="font-size:3rem">🦉</div>
+  <p><b>Ollie says:</b> Drag words to the correct box. Build a combo streak!</p>
+  <div class="stats"><span class="pill">Level: <span id="vocabLevel">1</span></span><span class="pill">Combo: <span id="combo">0</span>🔥</span><span class="pill">Points: <span id="vocabPoints">0</span></span></div>
+  <button onclick="startVocabLevel()">Start / Next Level ⭐</button>
+  <div id="vocabFeedback" class="feedback"></div>
+</div>
+<div id="vocabPanel"></div>
+</section>
+
+<section id="listen" class="section">
+<h2>🎧 5. Click What You Hear</h2>
+<p>Listen to the word. Click the correct card.</p>
+<div class="stats">
+  <span class="pill">Round: <span id="listenRound">1</span>/15</span>
+  <span class="pill">Score: <span id="listenScore">0</span></span>
+  <button onclick="playListenWord()">🔊 Replay</button>
+  <button onclick="nextListen()">➡ Next</button>
+</div>
+<div id="listenFeedback" class="feedback"></div>
+<div id="listenChoices" class="grid"></div>
+</section>
+
+<section id="speak" class="section">
+<h2>🗣️ 6. Speaking Practice</h2>
+<p>Answer the question. Use the sentence frame. Record your voice and listen again.</p>
+<div class="stats">
+  <button id="recBtn" onclick="toggleRecording()">🎙️ Start recording</button>
+  <button onclick="playRecording()">▶ Playback</button>
+  <span class="pill">Challenge: <span id="speakLevel">Brave Speaker</span></span>
+</div>
+<audio id="playback" controls class="hidden"></audio>
+<div id="speakCards"></div>
+</section>
+
+<section id="practice" class="section">
+<h2>✍️ 7. Guided Practice Activities</h2>
+<div class="grid">
+  <button onclick="showPractice('builder')">Sentence Builder</button>
+  <button onclick="showPractice('verb')">Choose the Verb</button>
+  <button onclick="showPractice('unscramble')">Unscramble</button>
+</div>
+<div id="builder" class="level-panel active"></div>
+<div id="verb" class="level-panel"></div>
+<div id="unscramble" class="level-panel"></div>
+</section>
+
+<section id="mini" class="section">
+<h2>🕹️ 8. Mini Games: Classroom Mode</h2>
+<div class="grid">
+  <div class="card"><h3>Quiz Cards</h3><div id="quizCard">Click new card.</div><button onclick="newQuizCard()">New Quiz Card</button></div>
+  <div class="card"><h3>Mystery Boxes</h3><div id="boxes" class="grid"></div></div>
+  <div class="card"><h3>Spin Wheel</h3><div id="wheel" class="wheel">🎡</div><button onclick="spinWheel()">Spin</button><p id="wheelTask"></p></div>
+  <div class="card"><h3>Team Points</h3><div class="team"><button onclick="teamAdd('A')">Team A +1</button><button onclick="teamAdd('B')">Team B +1</button></div><p>Team A: <b id="teamA">0</b> · Team B: <b id="teamB">0</b></p></div>
+</div>
+<h3>Memory Game</h3>
+<div id="memory" class="memory-grid"></div>
+</section>
+
+<section id="teacher" class="section hidden">
+<h2>👩‍🏫 9. Teacher Dashboard</h2>
+<div class="grid">
+  <div class="card"><h3>Student score overview</h3><p>Stars: <b id="tStars">0</b></p><p>Coins: <b id="tCoins">0</b></p><p>Matching: <b id="tMatch">0</b>/25</p><p>Listening: <b id="tListen">0</b>/15</p></div>
+  <div class="card"><h3>Quick rubric</h3><p>Vocabulary: □ Needs support □ Good □ Excellent</p><p>Grammar: □ Needs support □ Good □ Excellent</p><p>Listening: □ Needs support □ Good □ Excellent</p><p>Speaking: □ Needs support □ Good □ Excellent</p></div>
+  <div class="card"><h3>Answer keys</h3><button onclick="showKeys()">Show / Hide Keys</button><div id="keys" class="hidden"></div></div>
+  <div class="card"><h3>Controls</h3><button onclick="window.print()">🖨️ Print notes</button><button onclick="resetAll()">Reset progress</button><button onclick="classroomMode()">Classroom mode</button></div>
+</div>
+<textarea placeholder="Printable evaluation notes: Write student strengths, mistakes, and next lesson goals here."></textarea>
+<div id="certificate" class="cert"><h2>🏆 Daily Routine Champion 🏆</h2><p>This student completed the Present Simple Daily Routine Quest!</p><div id="certBadges"></div></div>
+</section>
+
+
+<section id="reading" class="section">
+<h2>📖 10. Reading Comprehension Zone</h2>
+<p>Read, listen, click new words, and answer interactive questions.</p>
+<div id="readingZone"></div>
+</section>
+
+<section id="writingLab" class="section">
+<h2>✏️ 11. Sentence Writing Lab</h2>
+<p>Build Present Simple sentences from easy to hard.</p>
+<div class="stats">
+<button onclick="showWritingTab('fillTab')">Fill Blanks</button>
+<button onclick="showWritingTab('rearrangeTab')">Rearrange</button>
+<button onclick="showWritingTab('ownTab')">Own Sentences</button>
+<button onclick="showWritingTab('mistakeTab')">Correct Mistakes</button>
+<button onclick="showWritingTab('finishTab')">Finish</button>
+</div>
+<div id="fillTab" class="level-panel active"></div>
+<div id="rearrangeTab" class="level-panel"></div>
+<div id="ownTab" class="level-panel"></div>
+<div id="mistakeTab" class="level-panel"></div>
+<div id="finishTab" class="level-panel"></div>
+</section>
+
+<section id="memoryPlus" class="section">
+<h2>🧠 12. Memory Challenge Game</h2>
+<div class="stats"><span class="pill">Level: <span id="memLevel">1</span></span><span class="pill">Timer: <span id="memTimer">0</span>s</span><span class="pill">Stars: <span id="memStars">0</span></span><button onclick="startMemoryPlus()">Start / Next Level</button><button onclick="toggleMultiplayer()">👥 Multiplayer</button></div>
+<div id="multiStatus" class="pill">Single-player mode</div>
+<div id="memoryPlusBoard" class="memory-grid"></div>
+</section>
+
+<section id="questionWheel" class="section">
+<h2>🎯 13. Spin the Question Wheel</h2>
+<div class="stats"><span class="pill">Countdown: <span id="wheelCount">30</span>s</span><span class="pill">Team A: <span id="wheelA">0</span></span><span class="pill">Team B: <span id="wheelB">0</span></span></div>
+<div id="bigQuestionWheel" class="wheel">🎯</div>
+<button onclick="spinQuestionWheel()">Spin for Question</button>
+<button onclick="wheelTeam('A')">Team A Correct</button>
+<button onclick="wheelTeam('B')">Team B Correct</button>
+<div id="wheelQuestion" class="card"></div>
+</section>
+
+<section id="dictation" class="section">
+<h2>🔊 14. Listen and Type</h2>
+<p>Listen to the sentence. Type what you hear.</p>
+<div class="stats"><span class="pill">Sentence: <span id="dictNo">1</span>/20</span><span class="pill">Accuracy: <span id="dictAcc">0</span>%</span><button onclick="playDictation()">🔊 Replay</button><button onclick="nextDictation()">Next</button></div>
+<input id="dictInput" class="inputline" placeholder="Type the sentence here...">
+<button onclick="checkDictation()">Check</button>
+<div id="dictFeedback" class="feedback"></div>
+<div id="dictDiff" class="dictation-diff"></div>
+</section>
+
+<section id="storyBuilder" class="section">
+<h2>🧩 15. Daily Routine Story Builder</h2>
+<div class="grid">
+<div class="card"><h3>Choose</h3><label>Character</label><select id="storyChar" class="inputline"><option>Lina</option><option>Tom</option><option>Mia</option><option>Leo</option></select><label>Place</label><select id="storyPlace" class="inputline"><option>at home</option><option>at school</option><option>in the park</option></select><label>Time</label><select id="storyTime" class="inputline"><option>at 7 o'clock</option><option>in the morning</option><option>after school</option></select><button onclick="generateStory()">Generate Story</button></div>
+<div class="card"><h3>Animated Story</h3><div id="storyVisual" class="illustration">🧒🏠⏰</div><p id="storyText"></p><button onclick="speak($('storyText').textContent)">🔊 Read</button><button onclick="window.print()">🖨️ Print Story</button></div>
+</div>
+<div id="storyTasks"></div>
+</section>
+
+<section id="avatarRoutine" class="section">
+<h2>🎨 16. Create Your Avatar Routine</h2>
+<div class="grid">
+<div class="card"><h3>Avatar Builder</h3><select id="avFace" class="inputline" onchange="updateAvatar()"><option>🧒</option><option>👧</option><option>🧑</option><option>🦸</option></select><select id="avClothes" class="inputline" onchange="updateAvatar()"><option>👕</option><option>🎒</option><option>🧢</option><option>🥋</option></select><select id="avHobby" class="inputline" onchange="updateAvatar()"><option>⚽ plays football</option><option>🎮 plays games</option><option>🎨 draws pictures</option><option>📖 reads books</option></select><button onclick="saveAvatar()">Save Avatar</button></div>
+<div class="card"><div id="avatarPreview" class="avatar-preview">🧒 👕 ⚽</div><p id="avatarSent">He wakes up at 7. He plays football after school.</p><button onclick="presentationMode()">🎤 Presentation Mode</button></div>
+</div>
+</section>
+
+<section id="fastFinishers" class="section">
+<h2>⚡ 17. Fast Finisher Activities</h2>
+<div class="grid">
+<div class="card"><h3>Hidden Object</h3><p>Find: 🪥 🎒 📖 🛌</p><div id="hiddenArea" class="hidden-object-area"></div></div>
+<div class="card"><h3>Emoji Sentence</h3><div id="emojiChallenge" class="big-emoji">⏰ 🪥 🏫</div><input id="emojiSentence" class="inputline" placeholder="I wake up, brush my teeth, and go to school."><button onclick="checkOpen('emojiSentence')">Check</button></div>
+<div class="card"><h3>Speed Vocabulary Race</h3><p id="raceWord">Click Start</p><input id="raceInput" class="inputline"><button onclick="startRace()">Start</button><button onclick="checkRace()">Check</button><p id="raceScore">Score: 0</p></div>
+<div class="card"><h3>Mystery Routine</h3><p id="mysteryClue">I do this at night. I am tired.</p><input id="mysteryAnswer" class="inputline"><button onclick="checkMystery()">Guess</button></div>
+</div>
+</section>
+
+<section id="assessment" class="section">
+<h2>🧪 18. Mini Assessment Center</h2>
+<div class="grid">
+<div class="card"><h3>Grammar</h3><div id="assGrammar"></div></div>
+<div class="card"><h3>Vocabulary</h3><div id="assVocab"></div></div>
+<div class="card"><h3>Listening</h3><button onclick="speak('She wakes up at seven.')">🔊 Listen</button><input id="assListen" class="inputline" placeholder="Type sentence"><button onclick="assessListen()">Check</button></div>
+<div class="card"><h3>Speaking</h3><p>Record: “I usually wake up at seven.”</p><button onclick="toggleRecording()">🎙️ Record</button></div>
+</div>
+<button onclick="finishAssessment()">Finish Test</button>
+<div id="finalScore" class="cert"></div>
+<textarea placeholder="Teacher comments section"></textarea>
+</section>
+
+<section id="parentMode" class="section">
+<h2>👨‍👩‍👧 19. Parent Mode</h2>
+<div class="grid">
+<div class="card"><h3>Learning objectives</h3><p>Your child practices daily routine vocabulary, Present Simple sentences, listening, speaking, and reading.</p></div>
+<div class="card"><h3>Homework ideas</h3><p>Ask your child: “What do you do in the morning?” Help them say 3 sentences every day.</p></div>
+<div class="card"><h3>Pronunciation tips</h3><p>Practice final /s/: wakes, eats, plays. Keep it short and playful.</p></div>
+<div class="card"><h3>Progress report</h3><p>Vocabulary: ____ Grammar: ____ Speaking: ____ Listening: ____</p></div>
+</div>
+<button onclick="window.print()">🖨️ Print parent pack</button>
+<div id="homeFlashcards" class="grid"></div>
+</section>
+
+<section id="vocabBank" class="section">
+<h2>📚 20. Vocabulary Expansion Bank</h2>
+<div class="stats"><button class="filter-btn active" onclick="filterVocab('all',this)">All</button><button class="filter-btn" onclick="filterVocab('morning',this)">Morning</button><button class="filter-btn" onclick="filterVocab('school',this)">School</button><button class="filter-btn" onclick="filterVocab('home',this)">Home</button><button class="filter-btn" onclick="filterVocab('hobby',this)">Hobby</button><button onclick="startVocabQuiz()">Quiz Mode</button></div>
+<div id="vocabBankGrid" class="grid"></div>
+</section>
+
+<section id="xpSystem" class="section">
+<h2>🏆 21. XP Level System</h2>
+<div class="stats"><span class="pill">XP: <span id="xp">0</span></span><span class="pill">Level: <span id="xpLevel">1</span></span><span class="pill">Streak: <span id="streak">0</span>🔥</span><button onclick="dailyChallenge()">Daily Challenge</button></div>
+<div id="badges" class="grid"></div>
+<div id="dailyChallengeBox" class="card"></div>
+</section>
+
+<section id="chatMode" class="section">
+<h2>🤖 22. AI Roleplay Chat Mode</h2>
+<div class="stats"><button onclick="setBot('🦊')">🦊 Fox</button><button onclick="setBot('🐼')">🐼 Panda</button><button onclick="setBot('🦉')">🦉 Owl</button></div>
+<div id="chatWindow" class="chat-window"></div>
+<input id="chatInput" class="inputline" placeholder="Type your answer...">
+<button onclick="sendChat()">Send</button><button onclick="speak(currentBotQuestion)">🔊 Hear Question</button>
+</section>
+
+<section id="videoMode" class="section">
+<h2>🎥 23. Interactive Video Mode</h2>
+<div class="video-box">
+<div><div class="teacher-face">👩‍🏫</div><h3 id="videoTitle">Lesson: My Daily Routine</h3><p id="subtitle">Hello! Today we learn: I wake up. She wakes up.</p><button onclick="nextVideoStep()">▶ Next checkpoint</button><button onclick="speak($('subtitle').textContent)">🔁 Repeat after me</button><div id="videoCheckpoint"></div></div>
+</div>
+</section>
+
+<section id="diffMode" class="section">
+<h2>🧬 24. Differentiated Learning Mode</h2>
+<div class="grid">
+<button onclick="setDiff('beginner')">Beginner</button>
+<button onclick="setDiff('standard')">Standard</button>
+<button onclick="setDiff('challenge')">Challenge Mode</button>
+</div>
+<div id="diffOutput" class="card"></div>
+</section>
+
+<section id="printables" class="section">
+<h2>🖨️ 25. Printable Materials Generator</h2>
+<p>Choose a resource and print directly from the browser.</p>
+<div class="stats"><button onclick="makePrintable('flashcards')">Flashcards</button><button onclick="makePrintable('worksheet')">Worksheet</button><button onclick="makePrintable('quiz')">Mini Quiz</button><button onclick="makePrintable('homework')">Homework</button><button onclick="makePrintable('vocab')">Vocabulary List</button><button onclick="window.print()">🖨️ Print</button></div>
+<div id="printableOutput"></div>
+</section>
+<div id="xpToast" class="xp-toast"></div>
+
+<div class="footer">Made for ESL classroom integration · Works offline · Present Simple Daily Routines 🚀</div>
+</main>
+
+<script>
+// ---------- Core Data ----------
+const routines=[
+["wake up","⏰"],["brush teeth","🪥"],["wash my face","🧼"],["eat breakfast","🥣"],["get dressed","👕"],["go to school","🏫"],["study English","📚"],["eat lunch","🍱"],["play games","🎮"],["do homework","✏️"],["read a book","📖"],["watch TV","📺"],["take a shower","🚿"],["have dinner","🍝"],["go to bed","🛌"]
+];
+const matchWords=[
+["wake up","⏰"],["brush teeth","🪥"],["wash face","🧼"],["eat breakfast","🥣"],["get dressed","👕"],["go to school","🏫"],["study","📚"],["eat lunch","🍱"],["play games","🎮"],["do homework","✏️"],["read","📖"],["watch TV","📺"],["take a shower","🚿"],["have dinner","🍝"],["go to bed","🛌"],["pack my bag","🎒"],["draw pictures","🎨"],["ride a bike","🚲"],["listen to music","🎧"],["clean my room","🧹"],["help my mum","👩‍👧"],["play football","⚽"],["drink water","🥤"],["feed the cat","🐱"],["sleep","😴"]
+];
+const listenWords=[["pack my bag","🎒"],["draw","🎨"],["ride a bike","🚲"],["music","🎧"],["clean","🧹"],["football","⚽"],["water","🥤"],["cat","🐱"],["sleep","😴"],["school","🏫"],["breakfast","🥣"],["homework","✏️"],["book","📖"],["shower","🚿"],["dinner","🍝"]];
+const examples=[
+"I wake up at seven.","I brush my teeth every morning.","I eat breakfast at home.","I go to school by bus.","I do my homework after school.",
+"I play games in the evening.","I read a book at night.","I go to bed at nine.","She wakes up early.","He brushes his teeth.",
+"She eats breakfast with her family.","He goes to school every day.","She does homework after dinner.","He plays football on Mondays.","She watches TV sometimes.",
+"I always brush my teeth.","I usually eat breakfast.","I sometimes play games.","I never sleep in class.","Does she read books?"
+];
+let state={stars:+localStorage.stars||0,coins:+localStorage.coins||0,matchScore:+localStorage.matchScore||0,listenScore:+localStorage.listenScore||0};
+let repeatMode=false, slideTimer=null, musicOn=false, dark=false;
+const $=id=>document.getElementById(id);
+function save(){Object.assign(localStorage,state);updateStats();}
+function addReward(s=1,c=2){state.stars+=s;state.coins+=c;save();sound('good');}
+function updateStats(){
+  ["stars","tStars"].forEach(id=>$(id)&&($(id).textContent=state.stars));
+  ["coins","tCoins"].forEach(id=>$(id)&&($(id).textContent=state.coins));
+  $("mainProgress").style.width=Math.min(100,(state.stars%50)*2)+"%";
+  if($("tMatch")) $("tMatch").textContent=state.matchScore;
+  if($("tListen")) $("tListen").textContent=state.listenScore;
+  if(state.stars>=30){$("certificate").style.display="block"; $("certBadges").innerHTML='<span class="badge">⭐ Star Learner</span><span class="badge">🎧 Good Listener</span><span class="badge">🗣️ Brave Speaker</span>';}
+}
+function scrollToId(id){document.getElementById(id).scrollIntoView({behavior:"smooth"});}
+function shuffle(a){return [...a].sort(()=>Math.random()-.5);}
+function speak(text){try{speechSynthesis.cancel();let u=new SpeechSynthesisUtterance(text);u.lang="en-US";u.pitch=1.35;u.rate=.82;let voices=speechSynthesis.getVoices();u.voice=voices.find(v=>/female|girl|zira|samantha|google us english/i.test(v.name))||voices[0];speechSynthesis.speak(u);}catch(e){}}
+function sound(type){try{const ctx=new (AudioContext||webkitAudioContext)();const o=ctx.createOscillator();const g=ctx.createGain();o.connect(g);g.connect(ctx.destination);o.frequency.value=type==='bad'?130: type==='pop'?520:880;g.gain.setValueAtTime(.08,ctx.currentTime);g.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+.18);o.start();o.stop(ctx.currentTime+.2)}catch(e){}}
+function confetti(){for(let i=0;i<60;i++){let d=document.createElement('div');d.className='confetti';d.style.left=Math.random()*100+'vw';d.style.background=['#60a5fa','#f472b6','#facc15','#34d399','#a78bfa'][i%5];d.style.animationDelay=Math.random()*0.5+'s';document.body.appendChild(d);setTimeout(()=>d.remove(),3000)}}
+
+// ---------- Warm-up ----------
+function initWarmup(){
+ $("warmGrid").innerHTML=routines.map((r,i)=>`<div class="card flash" style="animation-delay:${i*.04}s" onclick="warmClick('${r[0]}')"><div class="pic">${r[1]}</div><div class="label">${r[0]}</div><button class="small">🔊 Listen</button></div>`).join('');
+ $("examples").innerHTML=examples.map(x=>`<div class="card">✨ ${colorSentence(x)}</div>`).join('');
+}
+function colorSentence(s){return s.replace(/\b(I|You|We|They|He|She|It)\b/g,'<span class="pattern subject">$1</span>').replace(/\b(wake|brush|eat|go|do|play|read|watch|wakes|brushes|eats|goes|does|plays|reads|watches)\b/g,'<span class="pattern verb">$1</span>').replace(/\b(always|usually|sometimes|never)\b/g,'<span class="pattern freq">$1</span>');}
+function warmClick(t){speak(t);addReward(1,1); if(repeatMode)setTimeout(()=>speak("Repeat after me. "+t),900);}
+function startSlideshow(){let i=0;stopSlideshow();slideTimer=setInterval(()=>{warmClick(routines[i%routines.length][0]);i++},1800)}
+function stopSlideshow(){clearInterval(slideTimer)}
+
+// ---------- Matching ----------
+let matchStart=0, timerInt=null;
+function initMatching(){
+ state.matchScore=0; save(); $("matchScore").textContent=0; matchStart=Date.now(); clearInterval(timerInt);
+ timerInt=setInterval(()=>$("matchTimer").textContent=Math.floor((Date.now()-matchStart)/1000),1000);
+ $("dragWords").innerHTML=shuffle(matchWords).map(([w,e])=>`<div draggable="true" class="card drag" ondragstart="drag(event)" data-word="${w}">${w}</div>`).join('');
+ $("dropImages").innerHTML=shuffle(matchWords).map(([w,e])=>`<div class="drop" ondrop="drop(event)" ondragover="allowDrop(event)" data-answer="${w}"><div><div class="big-emoji">${e}</div><b>Drop word here</b></div></div>`).join('');
+}
+function allowDrop(ev){ev.preventDefault()}
+function drag(ev){ev.dataTransfer.setData("text",ev.target.dataset.word)}
+function drop(ev){ev.preventDefault();let word=ev.dataTransfer.getData("text");let box=ev.currentTarget;if(box.classList.contains('correct'))return;
+ if(word===box.dataset.answer){box.className='drop correct';box.innerHTML=`<div><div class="big-emoji">✅</div><b>${word}</b></div>`;state.matchScore++;$("matchScore").textContent=state.matchScore;addReward(1,2);if(state.matchScore===25){confetti();clearInterval(timerInt);}}
+ else{box.classList.add('wrong');sound('bad');setTimeout(()=>box.classList.remove('wrong'),550)}
+}
+
+// ---------- Vocab Challenge ----------
+const vocabLevels=[
+ [["morning","🌅","time"],["evening","🌙","time"],["school","🏫","place"],["bedroom","🛏️","place"],["breakfast","🥣","food"],["dinner","🍝","food"],["book","📖","thing"],["bag","🎒","thing"],["football","⚽","hobby"],["games","🎮","hobby"]],
+ [["always","💯","frequency"],["usually","👍","frequency"],["sometimes","🤔","frequency"],["never","🚫","frequency"],["early","🐓","time"],["late","🦉","time"],["homework","✏️","school"],["English","🇬🇧","school"],["music","🎧","hobby"],["drawing","🎨","hobby"]],
+ [["wash","🧼","action"],["brush","🪥","action"],["eat","🥣","action"],["drink","🥤","action"],["read","📖","action"],["watch","📺","action"],["play","⚽","action"],["clean","🧹","action"],["help","🤝","action"],["sleep","😴","action"],["take a shower","🚿","action"],["get dressed","👕","action"]]
+];
+let currentVocab=0, combo=0, vocabPoints=0;
+function startVocabLevel(){
+ let data=vocabLevels[currentVocab%vocabLevels.length], cats=[...new Set(data.map(x=>x[2]))];
+ $("vocabLevel").textContent=currentVocab+1; $("vocabPanel").innerHTML=`<div class="grid">${shuffle(data).map(x=>`<div draggable="true" ondragstart="dragCat(event)" class="card drag" data-cat="${x[2]}" data-label="${x[0]}">${x[1]} ${x[0]}</div>`).join('')}</div><div class="game-board">${cats.map(c=>`<div class="drop" ondrop="dropCat(event)" ondragover="allowDrop(event)" data-cat="${c}"><b>${c.toUpperCase()}</b></div>`).join('')}</div>`;
+ currentVocab++;
+}
+function dragCat(ev){ev.dataTransfer.setData("cat",ev.target.dataset.cat);ev.dataTransfer.setData("label",ev.target.dataset.label)}
+function dropCat(ev){ev.preventDefault();let cat=ev.dataTransfer.getData("cat"),label=ev.dataTransfer.getData("label");
+ if(cat===ev.currentTarget.dataset.cat){combo++;vocabPoints+=10+combo;$("combo").textContent=combo;$("vocabPoints").textContent=vocabPoints;$("vocabFeedback").textContent=combo>2?"Awesome combo! 🔥":"Great job! ⭐";ev.currentTarget.innerHTML+=`<div class="badge">${label}</div>`;addReward(1,2)}
+ else{combo=0;$("combo").textContent=0;$("vocabFeedback").textContent="Try again! 💪";sound('bad')}
+}
+
+// ---------- Listening ----------
+let listenIndex=0, currentListen=null;
+function initListening(){listenIndex=0;state.listenScore=0;save();nextListen();}
+function nextListen(){
+ if(listenIndex>=listenWords.length){$("listenFeedback").textContent="Listening level complete! 🏆";confetti();return}
+ currentListen=listenWords[listenIndex];$("listenRound").textContent=listenIndex+1;let choices=shuffle([currentListen,...shuffle(listenWords.filter(x=>x[0]!==currentListen[0])).slice(0,3)]);
+ $("listenChoices").innerHTML=choices.map(([w,e])=>`<button class="choice" onclick="checkListen('${w}')"><div class="big-emoji">${e}</div><b>${w}</b></button>`).join('');
+ playListenWord();
+}
+function playListenWord(){speak(currentListen?currentListen[0]:"wake up")}
+function checkListen(w){if(w===currentListen[0]){state.listenScore++;$("listenScore").textContent=state.listenScore;$("listenFeedback").textContent="Great listening! 🎧";addReward(1,2);listenIndex++;setTimeout(nextListen,750)}else{$("listenFeedback").textContent="Try again. Listen carefully. 👂";sound('bad')}}
+
+// ---------- Speaking / Recording ----------
+const speakQs=[
+["What time do you wake up?","I wake up at ..."],["Do you brush your teeth in the morning?","Yes, I do. / No, I don't."],["What do you eat for breakfast?","I eat ... for breakfast."],["How do you go to school?","I go to school by ..."],["What do you do after school?","After school, I ..."],["Do you play games after school?","Yes, I do. I play ..."],["When do you do homework?","I do homework ..."],["Do you read books?","Yes, I do. I read ..."],["What time do you go to bed?","I go to bed at ..."],["Do you watch TV every day?","Yes, I do. / No, I don't."],["Do you always eat breakfast?","I always/usually/sometimes ..."],["What do you usually drink?","I usually drink ..."],["Who helps you with homework?","My ... helps me."],["Do you clean your room?","I sometimes clean my room."],["What do you do in the evening?","In the evening, I ..."],["Does your mum wake up early?","Yes, she does. / No, she doesn't."],["Does your friend play football?","Yes, he/she does."],["What is your favorite routine?","My favorite routine is ..."],["What routine is boring?","... is boring."],["Can you say three routines?","I ..., I ..., and I ..."]
+];
+let mediaRecorder, chunks=[], audioBlob=null;
+function initSpeak(){
+ $("speakCards").innerHTML=speakQs.map((q,i)=>`<div class="card"><h3>${i+1}. ${q[0]}</h3><p>Frame: <span class="pattern">${q[1]}</span></p><button onclick="speak('${q[0].replace(/'/g,"")}')">🔊 Hear question</button><button onclick="react(this,'😊')">😊</button><button onclick="react(this,'🌟')">🌟</button><button onclick="react(this,'💪')">💪</button></div>`).join('');
+}
+function react(btn,e){btn.parentElement.insertAdjacentHTML('beforeend',`<span class="badge">${e} Good speaking!</span>`);addReward(1,1)}
+async function toggleRecording(){
+ if(!mediaRecorder || mediaRecorder.state==="inactive"){
+  try{const stream=await navigator.mediaDevices.getUserMedia({audio:true});mediaRecorder=new MediaRecorder(stream);chunks=[];mediaRecorder.ondataavailable=e=>chunks.push(e.data);mediaRecorder.onstop=()=>{audioBlob=new Blob(chunks,{type:'audio/webm'});$("playback").src=URL.createObjectURL(audioBlob);$("playback").classList.remove('hidden');addReward(2,4)};mediaRecorder.start();$("recBtn").textContent="⏹️ Stop recording";}
+  catch(e){alert("Microphone permission is needed for recording.")}
+ }else{mediaRecorder.stop();$("recBtn").textContent="🎙️ Start recording";}
+}
+function playRecording(){if(audioBlob){$("playback").play()}else alert("Record your answer first.")}
+
+// ---------- Practice ----------
+const builderQs=[
+["I","wake up","at seven"],["I","brush my teeth","in the morning"],["She","eats breakfast","at home"],["He","goes to school","by bus"],["I","do homework","after school"],["She","plays games","sometimes"],["He","watches TV","in the evening"],["I","read a book","at night"],["She","takes a shower","after dinner"],["He","goes to bed","at nine"]
+];
+const verbQs=[["She ___ breakfast.","eat","eats"],["He ___ to school.","go","goes"],["I ___ games.","play","plays"],["They ___ books.","read","reads"],["My sister ___ TV.","watch","watches"],["We ___ homework.","do","does"],["He ___ his teeth.","brush","brushes"],["I ___ up early.","wake","wakes"],["She ___ water.","drink","drinks"],["You ___ dinner.","have","has"]];
+const unscrambleQs=[
+["wake / I / up / early","I wake up early"],["breakfast / eats / She","She eats breakfast"],["school / He / to / goes","He goes to school"],["I / homework / do","I do homework"],["games / play / They","They play games"],["TV / watches / He","He watches TV"],["never / sleep / I / in class","I never sleep in class"],["usually / She / reads / books","She usually reads books"],["Do / play / you / football?","Do you play football?"],["Does / he / brush / teeth?","Does he brush teeth?"]];
+function initPractice(){
+ $("builder").innerHTML='<h3>Sentence Builder</h3>'+builderQs.map((q,i)=>`<div class="card"><p>${i+1}. Build: ${q.map(x=>`<span class="badge">${x}</span>`).join(' ')}</p><input class="inputline" id="b${i}" placeholder="Write the full sentence"><button onclick="checkInput('b${i}','${q.join(' ')}.')">Check</button></div>`).join('');
+ $("verb").innerHTML='<h3>Choose the Correct Verb</h3>'+verbQs.map((q,i)=>`<div class="card"><p>${i+1}. ${q[0]}</p><button onclick="choiceCheck(this,false)">${q[1]}</button><button onclick="choiceCheck(this,true)">${q[2]}</button></div>`).join('');
+ $("unscramble").innerHTML='<h3>Unscramble the Sentence</h3>'+unscrambleQs.map((q,i)=>`<div class="card"><p>${i+1}. ${q[0]}</p><input class="inputline" id="u${i}" placeholder="Write the sentence"><button onclick="checkInput('u${i}','${q[1]}')">Check</button></div>`).join('');
+}
+function showPractice(id){document.querySelectorAll('.level-panel').forEach(x=>x.classList.remove('active'));$(id).classList.add('active')}
+function normalize(s){return s.toLowerCase().replace(/[?.!]/g,'').replace(/\s+/g,' ').trim()}
+function checkInput(id,ans){let el=$(id); if(normalize(el.value)===normalize(ans)){el.style.borderColor='#22c55e';addReward(1,2)}else{el.style.borderColor='#ef4444';sound('bad')}}
+function choiceCheck(btn,ok){if(ok){btn.classList.add('selected');addReward(1,2)}else{btn.style.background='#fee2e2';sound('bad')}}
+
+// ---------- Mini Games ----------
+const quizQs=["Say 3 morning routines.","Make a sentence with usually.","Change: She wake up. Fix it!","Ask: Do you ...?","Say one negative sentence.","What do you do after school?","Does he play games? Answer yes.","Say a sentence with never.","Spell: breakfast.","Mime: brush teeth."];
+function newQuizCard(){let q=quizQs[Math.floor(Math.random()*quizQs.length)];$("quizCard").innerHTML=`<h3>${q}</h3><button onclick="addReward(2,5);confetti()">Correct + Reward</button>`}
+function initBoxes(){ $("boxes").innerHTML=[1,2,3,4,5,6].map(i=>`<button onclick="openBox(this)">❓ Box ${i}</button>`).join('') }
+function openBox(btn){let prizes=["+1 Star ⭐","Lose 1 coin 😮","Team swap 🔁","Bonus question 🎁","+5 coins 🪙","Dance break 💃"];btn.textContent=prizes[Math.floor(Math.random()*prizes.length)];addReward(1,1)}
+function spinWheel(){let deg=720+Math.random()*1440;$("wheel").style.transform=`rotate(${deg}deg)`;setTimeout(()=>{$("wheelTask").textContent=quizQs[Math.floor(Math.random()*quizQs.length)];addReward(1,3)},2000)}
+let scores={A:+localStorage.teamA||0,B:+localStorage.teamB||0};function teamAdd(t){scores[t]++;localStorage['team'+t]=scores[t];$("team"+t).textContent=scores[t];sound('good')}
+let firstMem=null, lock=false;
+function initMemory(){let pairs=shuffle(routines.slice(0,6).flatMap(x=>[x,x]));$("memory").innerHTML=pairs.map((x,i)=>`<div class="memory-card" data-word="${x[0]}" data-face="${x[1]}" onclick="flipMem(this)">?</div>`).join('')}
+function flipMem(c){if(lock||c.classList.contains('done')||c===firstMem)return;c.classList.add('open');c.textContent=c.dataset.face;if(!firstMem){firstMem=c;return}lock=true;if(firstMem.dataset.word===c.dataset.word){firstMem.classList.add('done');c.classList.add('done');addReward(1,2);firstMem=null;lock=false}else{setTimeout(()=>{firstMem.classList.remove('open');c.classList.remove('open');firstMem.textContent='?';c.textContent='?';firstMem=null;lock=false},800)}}
+
+// ---------- Teacher / Extras ----------
+function toggleTeacher(){$("teacher").classList.toggle('hidden');updateStats();scrollToId('teacher')}
+function showKeys(){
+ $("keys").classList.toggle('hidden');
+ $("keys").innerHTML="<p><b>Matching:</b> word must match its picture.</p><p><b>Verb rule:</b> I/you/we/they + base verb; he/she/it + verb-s.</p><p><b>Practice answers:</b></p><ol>"+builderQs.map(q=>`<li>${q.join(' ')}.</li>`).join('')+unscrambleQs.map(q=>`<li>${q[1]}</li>`).join('')+"</ol>";
+}
+function resetAll(){localStorage.clear();location.reload()}
+function classroomMode(){document.body.style.fontSize='1.15rem';alert("Classroom mode: bigger text is ON. Use fullscreen for projector mode.")}
+function toggleDark(){document.body.classList.toggle('dark');}
+function goFull(){document.documentElement.requestFullscreen?.()}
+let musicOsc=null,musicCtx=null;
+function toggleMusic(){
+ if(!musicOn){try{musicCtx=new (AudioContext||webkitAudioContext)();musicOsc=musicCtx.createOscillator();let g=musicCtx.createGain();musicOsc.connect(g);g.connect(musicCtx.destination);musicOsc.type='sine';musicOsc.frequency.value=220;g.gain.value=.015;musicOsc.start();musicOn=true}catch(e){}}
+ else{musicOsc?.stop();musicOn=false}
+}
+
+
+// ---------- Sections 10–25 Expansion Engine ----------
+const readingPassages=[
+{title:"My School Day",emoji:"🏫",text:"My name is Lily. I wake up at seven o’clock. I brush my teeth and wash my face. Then I eat breakfast with my family. I usually eat eggs and bread. At eight o’clock, I go to school with my brother. At school, I study English, math, and art. I play with my friends at break time. I eat lunch at school. After school, I go home and do my homework. In the evening, I watch TV for a short time. I read a book and go to bed at nine o’clock. I like my school day because I see my friends and learn new things.",vocab:["wake up","brush","breakfast","school","homework"],mc:["What time does Lily wake up?|six|seven|nine|seven","Who does Lily go to school with?|her brother|her cat|her teacher|her brother","What does she study?|English, math, and art|music only|football|English, math, and art","Where does she eat lunch?|at school|in the park|in bed|at school","Why does she like school?|friends and learning|sleeping|shopping|friends and learning"]},
+{title:"My Weekend Routine",emoji:"🌳",text:"Hello, I am Jack. On Saturday, I do not go to school. I wake up at eight o’clock. I eat pancakes for breakfast. I usually help my dad in the garden. Then I ride my bike in the park. My sister plays with me. We sometimes play football, too. At lunchtime, we eat sandwiches. In the afternoon, I draw pictures and play games. I do not do a lot of homework on Saturday. In the evening, my family watches a film. I go to bed at ten o’clock. I love weekends because I have more free time.",vocab:["weekend","garden","ride","sometimes","free time"],mc:["What day is it?|Monday|Saturday|Friday|Saturday","What does Jack eat?|pancakes|rice|fish|pancakes","Where does he ride his bike?|park|school|kitchen|park","Who plays with him?|sister|teacher|grandpa|sister","Why does he love weekends?|free time|tests|early school|free time"]},
+{title:"A Busy Morning",emoji:"🌅",text:"Mia has a busy morning. She wakes up at half past six. First, she makes her bed. Then she brushes her teeth and gets dressed. She wears her blue T-shirt and black shoes. She eats cereal and drinks milk. Her mum says, “Hurry up, Mia!” Mia packs her school bag. She puts her book, pencil, and lunch box in the bag. At quarter past seven, she leaves home. She walks to the bus stop with her mum. On the bus, she talks to her friend. She gets to school at eight o’clock. Mia is busy, but she is happy.",vocab:["busy","gets dressed","cereal","packs","bus stop"],mc:["What time does Mia wake up?|6:30|7:30|8:00|6:30","What does she make first?|bed|cake|bag|bed","What does she drink?|milk|tea|juice|milk","Where does she walk?|bus stop|zoo|shop|bus stop","How does Mia feel?|happy|angry|sad|happy"]}
+];
+function initReading(){
+ const zone=$("readingZone");
+ zone.innerHTML=readingPassages.map((p,pi)=>`<div class="card"><h3>${p.title}</h3><div class="reading-layout"><div class="illustration">${p.emoji}</div><div><p>${p.text.split(' ').map(w=>p.vocab.some(v=>v.split(' ')[0].toLowerCase()===w.toLowerCase().replace(/[.,!]/g,''))?'<span class="vocab-chip" onclick="speak(\''+w.replace(/[.,!]/g,'')+'\')">'+w+'</span>':w).join(' ')}</p><button onclick="speak(readingPassages[${pi}].text)">🔊 Read aloud</button></div></div><div id="readTasks${pi}"></div></div>`).join('');
+ readingPassages.forEach((p,pi)=>buildReadingTasks(p,pi));
+}
+function buildReadingTasks(p,pi){
+ let html='<h4>Multiple Choice</h4>'+p.mc.map((q,i)=>{let parts=q.split('|');return `<div class="task-row"><b>${i+1}. ${parts[0]}</b><br>${parts.slice(1,4).map(x=>`<button onclick="readCheck(this,'${x}','${parts[4]}')">${x}</button>`).join('')}</div>`}).join('');
+ html+='<h4>True / False</h4>'+["The child has a daily routine.","The child eats breakfast.","The child goes to the moon.","The child sleeps at night.","The child learns or plays."].map((q,i)=>`<div class="task-row">${q}<br><button onclick="readCheck(this,'true','${i===2?'false':'true'}')">True</button><button onclick="readCheck(this,'false','${i===2?'false':'true'}')">False</button></div>`).join('');
+ html+='<h4>Drag-and-drop comprehension</h4><div class="grid">'+shuffle(p.vocab).map(v=>`<div class="card drag" draggable="true" ondragstart="event.dataTransfer.setData('text','${v}')">${v}</div>`).join('')+'</div><div class="grid">'+p.vocab.map(v=>`<div class="drop" ondragover="allowDrop(event)" ondrop="dropRead(event,'${v}')">Drop: ${v}</div>`).join('')+'</div>';
+ html+='<h4>Sequencing</h4>'+["First routine","Middle routine","Last routine"].map((x,i)=>`<div class="task-row">${x}: <select onchange="seqCheck(this)"><option></option><option>wake up</option><option>eat breakfast</option><option>go to bed</option></select></div>`).join('');
+ html+='<h4>Find the verb</h4>'+["I wake up.","She eats breakfast.","He goes to school."].map(s=>`<div class="task-row">${s} <input class="inputline" placeholder="verb"><button onclick="findVerb(this,'${s.split(' ')[1].replace('.','')}')">Check</button></div>`).join('');
+ $("readTasks"+pi).innerHTML=html;
+}
+function readCheck(btn,val,ans){if(val===ans){btn.classList.add('correctText');addXP(8);addReward(1,1)}else{btn.classList.add('wrongText');sound('bad')}}
+function dropRead(ev,ans){ev.preventDefault();let val=ev.dataTransfer.getData('text');if(val===ans){ev.currentTarget.classList.add('correct');ev.currentTarget.textContent='✅ '+ans;addXP(10)}else{ev.currentTarget.classList.add('wrong');sound('bad')}}
+function seqCheck(sel){let ok=["wake up","eat breakfast","go to bed"].includes(sel.value); if(ok){sel.classList.add('correctText');addXP(5)}}
+function findVerb(btn,ans){let inp=btn.previousElementSibling;if(normalize(inp.value)===normalize(ans)){inp.classList.add('correctText');addXP(5)}else inp.classList.add('wrongText')}
+
+// Writing Lab
+const fillQs=Array.from({length:20},(_,i)=>["I ___ up at seven.|wake","She ___ breakfast.|eats","He ___ to school.|goes","I ___ my teeth.|brush","They ___ games.|play"][i%5]);
+const ownPrompts=["morning","school","breakfast","homework","football","evening","weekend","friend","mother","father","book","TV","bed","bus","music"];
+const mistakes=["She wake up early.|She wakes up early.","He don't eat breakfast.|He doesn't eat breakfast.","Does you play games?|Do you play games?","I goes to school.|I go to school.","She brush teeth.|She brushes teeth."];
+function initWritingLab(){
+ $("fillTab").innerHTML=fillQs.map((q,i)=>{let [s,a]=q.split('|');return `<div class="task-row">${i+1}. ${s}<input class="inputline" id="fill${i}"><button onclick="checkInput('fill${i}','${a}')">Check</button><button onclick="speak('${a}')">Hint</button></div>`}).join('');
+ $("rearrangeTab").innerHTML=unscrambleQs.concat(unscrambleQs).slice(0,20).map((q,i)=>`<div class="task-row">${i+1}. ${q[0]}<input class="inputline" id="rw${i}"><button onclick="checkInput('rw${i}','${q[1]}')">Check</button><button onclick="$('rw${i}').value='${q[1]}'">Example</button></div>`).join('');
+ $("ownTab").innerHTML=ownPrompts.map((p,i)=>`<div class="task-row">${i+1}. Write a sentence about: <b>${p}</b><input class="inputline" id="own${i}"><button onclick="checkOpen('own${i}')">Save</button></div>`).join('');
+ $("mistakeTab").innerHTML=Array.from({length:15},(_,i)=>mistakes[i%mistakes.length]).map((q,i)=>{let [s,a]=q.split('|');return `<div class="task-row">${i+1}. ❌ ${s}<input class="inputline" id="mis${i}"><button onclick="checkInput('mis${i}','${a}')">Check</button></div>`}).join('');
+ $("finishTab").innerHTML=ownPrompts.map((p,i)=>`<div class="task-row">${i+1}. I usually ${p==='morning'?'wake up in the morning':p+' ...'}<input class="inputline" id="fin${i}"><button onclick="checkOpen('fin${i}')">Finish</button></div>`).join('');
+}
+function showWritingTab(id){document.querySelectorAll('#writingLab .level-panel').forEach(x=>x.classList.remove('active'));$(id).classList.add('active')}
+function checkOpen(id){let el=$(id);if(el.value.trim().split(/\s+/).length>=3){el.classList.add('correctText');addXP(10);confetti()}else{el.classList.add('wrongText');sound('bad')}}
+
+// Memory Plus
+let memPlusLevel=1, memPlusStars=0, memPlusTimer=0, memPlusInt=null, memFirst=null, memLock=false, multiplayer=false;
+function startMemoryPlus(){
+ memPlusTimer=0;clearInterval(memPlusInt);memPlusInt=setInterval(()=>{$("memTimer").textContent=++memPlusTimer},1000);
+ const n=Math.min(12,4+memPlusLevel*2);let base=routines.slice(0,n/2);
+ let cards=shuffle(base.flatMap(([w,e])=>[{type:'word',value:w,match:w},{type:'image',value:e,match:w}]));
+ $("memoryPlusBoard").innerHTML=cards.map(c=>`<div class="memory-card" data-match="${c.match}" onclick="flipMemPlus(this)" data-val="${c.value}">?</div>`).join('');
+ $("memLevel").textContent=memPlusLevel++;
+}
+function flipMemPlus(c){if(memLock||c.classList.contains('done')||c===memFirst)return;c.textContent=c.dataset.val;c.classList.add('open'); if(!memFirst){memFirst=c;return} memLock=true; if(memFirst.dataset.match===c.dataset.match){c.classList.add('done');memFirst.classList.add('done');memPlusStars++;$("memStars").textContent=memPlusStars;addXP(10);memFirst=null;memLock=false}else setTimeout(()=>{c.textContent='?';memFirst.textContent='?';c.classList.remove('open');memFirst.classList.remove('open');memFirst=null;memLock=false},800)}
+function toggleMultiplayer(){multiplayer=!multiplayer;$("multiStatus").textContent=multiplayer?"Multiplayer classroom mode: teams take turns.":"Single-player mode"}
+
+// Question Wheel
+const wheelQuestions=[
+["easy","speaking","What time do you wake up?"],["easy","vocabulary","Mime: brush your teeth."],["medium","grammar","Correct: She wake up."],["medium","sentence","Make a sentence with usually."],["challenge","speaking","Tell me 4 things you do before school."],["challenge","grammar","Ask a question with Does."],["easy","mime","Act: go to bed."],["medium","vocabulary","Say 5 daily routines."]
+];
+let wheelScores={A:0,B:0}, wheelTimer;
+function spinQuestionWheel(){clearInterval(wheelTimer);let t=30;$("wheelCount").textContent=t;wheelTimer=setInterval(()=>{$("wheelCount").textContent=--t;if(t<=0)clearInterval(wheelTimer)},1000);$("bigQuestionWheel").style.transform=`rotate(${720+Math.random()*2000}deg)`;setTimeout(()=>{let q=wheelQuestions[Math.floor(Math.random()*wheelQuestions.length)];$("wheelQuestion").innerHTML=`<h3>${q[0].toUpperCase()} · ${q[1]}</h3><p>${q[2]}</p>`;sound('pop');},1800)}
+function wheelTeam(t){wheelScores[t]++;$("wheel"+t).textContent=wheelScores[t];addXP(10);}
+
+// Dictation
+const dictSentences=["I wake up at seven.","She brushes her teeth.","He eats breakfast at home.","I go to school by bus.","They play games after school.","She does homework in the evening.","He reads a book at night.","I usually drink water.","She never sleeps in class.","Do you watch TV?","Does he play football?","I take a shower every day.","She gets dressed quickly.","He packs his school bag.","We eat lunch at school.","I sometimes clean my room.","She helps her mum.","He goes to bed at nine.","I like my school day.","She has a busy morning."];
+let dictIndex=0;
+function playDictation(){speak(dictSentences[dictIndex])}
+function nextDictation(){dictIndex=(dictIndex+1)%dictSentences.length;$("dictNo").textContent=dictIndex+1;$("dictInput").value='';$("dictDiff").innerHTML='';playDictation()}
+function checkDictation(){let target=dictSentences[dictIndex], val=$("dictInput").value;let tw=target.toLowerCase().replace(/[.?!]/g,'').split(' '), vw=val.toLowerCase().replace(/[.?!]/g,'').split(' ');let ok=0;let diff=tw.map((w,i)=>{if(vw[i]===w){ok++;return `<span class="ok">${w}</span>`}return `<span class="bad">${w}</span>`}).join(' ');let acc=Math.round(ok/tw.length*100);$("dictAcc").textContent=acc;$("dictDiff").innerHTML=diff;if(acc>80){addXP(15);addReward(1,2)}}
+
+// Story
+function generateStory(){let c=$("storyChar").value,p=$("storyPlace").value,t=$("storyTime").value;let story=`${c} wakes up ${t}. ${c} brushes teeth and eats breakfast. Then ${c} goes ${p}. ${c} plays, studies, and reads a book. In the evening, ${c} does homework and goes to bed. ${c} is happy.`;$("storyText").textContent=story;$("storyVisual").textContent=(c==="Lina"||c==="Mia"?"👧":"🧒")+" "+(p.includes("school")?"🏫":p.includes("park")?"🌳":"🏠")+" ⏰";$("storyTasks").innerHTML=`<div class="grid"><div class="card"><h3>Complete verbs</h3><p>${c} ___ up. ${c} ___ breakfast.</p><input id="storyVerb" class="inputline"><button onclick="checkOpen('storyVerb')">Check</button></div><div class="card"><h3>Comprehension</h3><p>Is ${c} happy?</p><button onclick="readCheck(this,'yes','yes')">Yes</button><button onclick="readCheck(this,'no','yes')">No</button></div><div class="card"><h3>Record reading</h3><button onclick="toggleRecording()">🎙️ Record</button></div></div>`;addXP(10)}
+
+// Avatar
+function updateAvatar(){let hobby=$("avHobby").value.split(" ");$("avatarPreview").textContent=$("avFace").value+" "+$("avClothes").value+" "+hobby[0];$("avatarSent").textContent=`He wakes up at 7. He ${$("avHobby").value.substring(2)} after school.`}
+function saveAvatar(){localStorage.avatar=$("avatarPreview").textContent;addXP(15);confetti()}
+function presentationMode(){speak($("avatarSent").textContent);addXP(10)}
+
+// Fast finishers
+let raceCurrent="", raceScore=0;
+function initHidden(){let objs=["🪥","🎒","📖","🛌","⏰","🥣"]; $("hiddenArea").innerHTML=objs.map(o=>`<span class="hidden-obj" onclick="this.remove();addXP(5)" style="left:${Math.random()*82}%;top:${Math.random()*72}%">${o}</span>`).join('')}
+function startRace(){raceCurrent=matchWords[Math.floor(Math.random()*matchWords.length)][0];$("raceWord").textContent="Type: "+raceCurrent;speak(raceCurrent)}
+function checkRace(){if(normalize($("raceInput").value)===normalize(raceCurrent)){raceScore++;$("raceScore").textContent="Score: "+raceScore;addXP(8);startRace()}else sound('bad')}
+function checkMystery(){if(/sleep|go to bed|bed/i.test($("mysteryAnswer").value)){addXP(10);confetti()}else sound('bad')}
+
+// Assessment
+function initAssessment(){ $("assGrammar").innerHTML=`<p>She ___ breakfast.</p><button onclick="readCheck(this,'eats','eats')">eats</button><button onclick="readCheck(this,'eat','eats')">eat</button>`;$("assVocab").innerHTML=`<p>What is this? 🪥</p><button onclick="readCheck(this,'brush teeth','brush teeth')">brush teeth</button><button onclick="readCheck(this,'go bed','brush teeth')">go bed</button>`}
+function assessListen(){checkInput('assListen','She wakes up at seven.')}
+function finishAssessment(){let total=state.stars+state.listenScore+state.matchScore;let pct=Math.min(100,Math.round(total/80*100));$("finalScore").style.display='block';$("finalScore").innerHTML=`<h2>Level Complete! 🎉</h2><p>Final grade: ${pct}%</p><p>Certificate: Present Simple Daily Routine Explorer</p>`;confetti()}
+
+// Parent + Vocab Bank
+const vocabBank=[
+["wake up early","⏰","morning","I wake up early."],["brush my teeth","🪥","morning","I brush my teeth."],["wash my face","🧼","morning","I wash my face."],["eat breakfast","🥣","morning","I eat breakfast."],["get dressed","👕","morning","She gets dressed."],["pack my bag","🎒","school","I pack my bag."],["ride the bus","🚌","school","I ride the bus."],["go to school","🏫","school","He goes to school."],["study English","📚","school","We study English."],["eat lunch","🍱","school","They eat lunch."],["do homework","✏️","home","I do homework."],["clean my room","🧹","home","She cleans her room."],["help my mum","🤝","home","He helps his mum."],["watch TV","📺","home","I watch TV."],["take a shower","🚿","home","I take a shower."],["play football","⚽","hobby","He plays football."],["play games","🎮","hobby","She plays games."],["draw pictures","🎨","hobby","I draw pictures."],["read books","📖","hobby","We read books."],["listen to music","🎧","hobby","They listen to music."],
+["wake up late","🦉","morning","I sometimes wake up late."],["make my bed","🛏️","morning","I make my bed."],["drink milk","🥛","morning","She drinks milk."],["wear shoes","👟","morning","He wears shoes."],["comb my hair","💇","morning","I comb my hair."],["open my book","📖","school","I open my book."],["write sentences","📝","school","She writes sentences."],["answer questions","🙋","school","He answers questions."],["play at break","🛝","school","We play at break."],["come home","🏡","home","I come home."],["have dinner","🍝","home","We have dinner."],["feed the cat","🐱","home","She feeds the cat."],["go to bed","🛌","home","He goes to bed."],["sleep well","😴","home","I sleep well."],["ride a bike","🚲","hobby","I ride a bike."],["play basketball","🏀","hobby","He plays basketball."],["dance","💃","hobby","She dances."],["sing songs","🎤","hobby","We sing songs."],["swim","🏊","hobby","They swim."],["run fast","🏃","hobby","I run fast."],["eat a snack","🍎","home","I eat a snack."],["drink water","🥤","home","I drink water."],["put on pajamas","🧸","home","I put on pajamas."],["say good night","🌙","home","I say good night."],["leave home","🚪","morning","She leaves home."],["meet friends","👫","school","He meets friends."],["ask the teacher","👩‍🏫","school","I ask the teacher."],["finish homework","✅","home","I finish homework."],["visit grandma","👵","hobby","I visit grandma."],["walk the dog","🐶","hobby","She walks the dog."],["play with toys","🧸","hobby","He plays with toys."],["tidy my desk","🗂️","home","I tidy my desk."],["prepare my bag","🎒","morning","I prepare my bag."]
+];
+function initParent(){ $("homeFlashcards").innerHTML=routines.slice(0,8).map(x=>`<div class="print-card"><div class="big-emoji">${x[1]}</div><b>${x[0]}</b></div>`).join('')}
+function initVocabBank(){filterVocab('all')}
+function filterVocab(cat,btn){document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active')); if(btn)btn.classList.add('active');let data=cat==='all'?vocabBank:vocabBank.filter(x=>x[2]===cat);$("vocabBankGrid").innerHTML=data.map(x=>`<div class="card"><div class="big-emoji">${x[1]}</div><h3>${x[0]}</h3><p>${x[3]}</p><button onclick="speak('${x[0]}')">🔊</button><button onclick="favWord('${x[0]}')">⭐ Favorite</button></div>`).join('')}
+function favWord(w){let fav=JSON.parse(localStorage.favWords||'[]');if(!fav.includes(w))fav.push(w);localStorage.favWords=JSON.stringify(fav);addXP(3)}
+function startVocabQuiz(){let x=vocabBank[Math.floor(Math.random()*vocabBank.length)];alert("Quiz: Say a sentence with: "+x[0]);speak(x[0])}
+
+// XP
+let xp=+localStorage.xp||0, streak=+localStorage.streak||0;
+function addXP(n){xp+=n;streak++;localStorage.xp=xp;localStorage.streak=streak;updateXP();let toast=$("xpToast");toast.textContent=`+${n} XP! Great job!`;toast.style.display='block';setTimeout(()=>toast.style.display='none',1200)}
+function updateXP(){if($("xp")){$("xp").textContent=xp;$("xpLevel").textContent=Math.floor(xp/100)+1;$("streak").textContent=streak;renderBadges()}}
+function renderBadges(){let defs=[["Morning Routine Master",50],["Grammar Hero",120],["Speaking Champion",200],["Listening Star",300],["Reading Ranger",450],["Daily Routine Legend",650]];$("badges").innerHTML=defs.map(d=>`<div class="card ${xp<d[1]?'badge-locked':''}"><h3>🏅 ${d[0]}</h3><p>${xp>=d[1]?'Unlocked!':'Unlock at '+d[1]+' XP'}</p></div>`).join('')}
+function dailyChallenge(){let q=quizQs[Math.floor(Math.random()*quizQs.length)];$("dailyChallengeBox").innerHTML=`<h3>Daily Challenge</h3><p>${q}</p><button onclick="addXP(25);confetti()">Complete</button>`}
+
+// Chat
+let botFace="🦊", currentBotQuestion="What time do you wake up?";
+function setBot(b){botFace=b;botAsk()}
+function botAsk(){let qs=["What time do you wake up?","Do you like school?","What do you do after dinner?","Do you play games?","What do you eat for breakfast?"];currentBotQuestion=qs[Math.floor(Math.random()*qs.length)];$("chatWindow").innerHTML+=`<div class="msg bot">${botFace} ${currentBotQuestion}</div>`;speak(currentBotQuestion)}
+function sendChat(){let val=$("chatInput").value.trim();if(!val)return;$("chatWindow").innerHTML+=`<div class="msg user">${val}</div><div class="msg bot">${botFace} Great answer! Try a full sentence: “I usually...” ⭐</div>`;$("chatInput").value='';addXP(10);setTimeout(botAsk,700)}
+
+// Video Mode
+let videoStep=0;
+const videoSteps=["Hello! Today we learn: I wake up. She wakes up.","Repeat after me: I brush my teeth.","Action time! Mime: go to school.","Checkpoint: Make a sentence with usually.","Great! Now say: She eats breakfast."];
+function nextVideoStep(){videoStep=(videoStep+1)%videoSteps.length;$("subtitle").textContent=videoSteps[videoStep];$("videoCheckpoint").innerHTML=`<button onclick="addXP(10);confetti()">I did it! 👏</button>`;speak(videoSteps[videoStep])}
+
+// Differentiation
+function setDiff(mode){let txt={beginner:"Beginner mode: more emojis, shorter sentences, more audio, fewer choices. Example: I wake up.",standard:"Standard mode: full A1 lesson with positive, negative, and question forms.",challenge:"Challenge mode: more he/she forms, frequency adverbs, correction tasks, and longer speaking answers."};$("diffOutput").innerHTML=`<h3>${mode.toUpperCase()}</h3><p>${txt[mode]}</p>`;localStorage.diffMode=mode;addXP(5)}
+
+// Printables
+function makePrintable(type){let out=''; if(type==='flashcards')out=routines.map(x=>`<div class="print-card"><div class="big-emoji">${x[1]}</div><h2>${x[0]}</h2></div>`).join('');
+ if(type==='worksheet')out=fillQs.slice(0,10).map((q,i)=>`<div class="print-card">${i+1}. ${q.split('|')[0]} __________________</div>`).join('');
+ if(type==='quiz')out=quizQs.map((q,i)=>`<div class="print-card">${i+1}. ${q}</div>`).join('');
+ if(type==='homework')out=ownPrompts.slice(0,10).map((p,i)=>`<div class="print-card">${i+1}. Write one sentence about ${p}: __________________</div>`).join('');
+ if(type==='vocab')out=vocabBank.slice(0,50).map((v,i)=>`<div class="print-card">${i+1}. ${v[1]} ${v[0]} — ${v[3]}</div>`).join('');
+ $("printableOutput").innerHTML=out;
+}
+
+// Extend init after original load
+window.addEventListener('load',()=>{setTimeout(()=>{initReading();initWritingLab();startMemoryPlus();initHidden();initAssessment();initParent();initVocabBank();updateXP();botAsk();generateStory();updateAvatar();setDiff(localStorage.diffMode||'standard');makePrintable('flashcards');},900)});
+
+// ---------- Init ----------
+window.addEventListener('load',()=>{setTimeout(()=>$("loader").style.display='none',650);initWarmup();initMatching();initListening();initSpeak();initPractice();initBoxes();initMemory();updateStats();$("teamA").textContent=scores.A;$("teamB").textContent=scores.B;});
+</script>
+</body>
+</html>
